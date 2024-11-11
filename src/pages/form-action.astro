@@ -1,0 +1,49 @@
+---
+import { actions, isInputError } from "astro:actions";
+
+import Layout from "../layouts/Layout.astro";
+
+const result = Astro.getActionResult(actions.contact.add);
+let message = "";
+if (result) {
+  if (result.error) {
+    if (isInputError(result.error)) {
+      message = "入力エラー";
+    } else if (result.error.code === "INTERNAL_SERVER_ERROR") {
+      message = result.error.message;
+    } else {
+      message = "不明なエラー";
+    }
+  } else {
+    message = result.data;
+  }
+}
+---
+
+<Layout title="Form">
+  <h1>問い合わせ</h1>
+  <form method="post" action={actions.contact.add}>
+    <label>
+      名前:
+      <input type="text" name="name" />
+    </label>
+    <br />
+    <label>
+      Email:
+      <input type="email" name="email" />
+    </label>
+    <br />
+    <label>
+      メッセージ:
+      <textarea name="message"></textarea>
+    </label>
+    <br />
+    <button type="submit">送信</button>
+  </form>
+
+  {
+    message.length > 0 && (
+      <script define:vars={{ message }}>alert(message)</script>
+    )
+  }
+</Layout>
